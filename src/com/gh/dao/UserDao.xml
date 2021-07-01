@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="uTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gh.dao.UserDao">
+    <cache/>
+    <resultMap id="findco" type="User">
+        <id column="uid" property="id" javaType="java.lang.Integer"></id>
+        <result column="name" property="name" javaType="java.lang.String"></result>
+        <result column="age" property="age" javaType="java.lang.Integer"></result>
+        <result column="sex" property="sex" javaType="java.lang.String"></result>
+        <result column="address" property="address" javaType="java.lang.String"></result>
+        <association property="score" javaType="Score">
+            <id column="sid" property="id" javaType="java.lang.Integer"></id>
+            <result column="score" property="score" javaType="java.lang.Double"></result>
+            <result column="u_id" property="u_id" javaType="java.lang.Integer"></result>
+        </association>
+    </resultMap>
+    <resultMap id="UserAndScores" type="User">
+        <id column="uid" property="id"/>
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="sex" property="sex"/>
+        <result column="address" property="address"/>
+        <!--collection指的是一对多 javaType:当前属性的什么类型 ofType:集合中装的是什么类型-->
+        <collection property="scores" ofType="Score" select="findByUserId" column="tid">
+            <id column="sid" property="id"/>
+            <id column="score" property="score"/>
+            <id column="u_id" property="u_id"/>
+        </collection>
+    </resultMap>
+    <select id="findByUserId" resultType="Score">
+        select *,id as sid from score where u_id=#{u_id}
+    </select>
+    <select id="findUserAndScore" resultMap="findco">
+        select *,user.id as uid,score.id as sid from user,score where user.id=score.u_id;
+    </select>
+    <select id="findUserIn" resultType="com.gh.entity.User" parameterType="java.util.List">
+        select * from user
+        <if test="list!=null and list.size()!=0">
+            where id in
+            <foreach collection="list" index="i" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="findUserLimit" resultType="User" parameterType="java.util.List">
+        select * from user
+        <if test="list!=null and list.size()!=0">
+            limit
+            <foreach collection="list" index="i" item="item" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="findUserBetween" resultType="User" parameterType="java.util.List">
+        <include refid="findAll1"/>
+        <include refid="tiaojian"/>
+    </select>
+
+    <select id="findUserByNameAndSex" parameterType="User" resultMap="UserAndScores">
+        select *,id as tid from user where name=#{name} and sex=#{sex}
+    </select>
+    <sql id="findAll1">
+        select * from user
+    </sql>
+    <sql id="tiaojian">
+        <if test="list!=null and list.size()!=0">
+            where id between
+            <foreach collection="list" index="i" item="item" separator="and">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+    <resultMap id="findByid" type="User">
+        <id column="tid" property="id" javaType="java.lang.Integer"/>
+        <result column="name" property="name" javaType="java.lang.String"/>
+        <result column="sex" property="sex" javaType="java.lang.String"/>
+        <result column="age" property="age" javaType="java.lang.Integer"/>
+        <result column="address" property="address" javaType="java.lang.String"/>
+        <collection property="scores" column="tid" javaType="java.util.List" ofType="Score" select="findScoreByid">
+            <id column="sid" property="id"></id>
+            <result column="score" property="score"/>
+            <result column="u_id" property="u_id"/>
+        </collection>
+    </resultMap>
+    <select id="findUserByNameAndId" parameterType="User" resultMap="findByid">
+        select *,id as tid from user where name=#{name} and id=#{id};
+    </select>
+    <select id="findScoreByid" parameterType="java.lang.Integer" resultType="Score">
+        select *,id as sid from score where u_id=#{u_id}
+    </select>
+    <select id="findById" resultType="User">
+        select * from user where id=#{id}
+    </select>
+</mapper>

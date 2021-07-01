@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="uTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="db.properties"/>
+    <settings>
+        <!--开启二级缓存-->
+        <setting name="cacheEnabled" value="true"/>
+        <!-- 延迟加载开关 -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!-- 当设置为true的时候，懒加载的对象可能被任何懒属性全部加载。否则，每个属性都按需加载。 -->
+        <setting name="aggressiveLazyLoading" value="false"/>
+    </settings>
+
+    <typeAliases>
+        <!-- <typeAlias type="com.gh.entity.Login" alias="login"></typeAlias>-->
+        <!--给包下面的类起别名-->
+        <package name="com.gh.entity"/>
+
+    </typeAliases>
+    <environments default="mybatis">
+        <environment id="mybatis">
+            <transactionManager type="JDBC"></transactionManager>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <!--包扫描-->
+        <package name="com.gh.dao"></package>
+    </mappers>
+</configuration>
